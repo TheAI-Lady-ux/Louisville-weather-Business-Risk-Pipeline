@@ -1,0 +1,9 @@
+sensitivity_id,sector_id,weather_variable,business_signal,example_entities
+1,1,Mean temperature,Heating/Cooling Degree Days drive energy demand,"LG&E, GE Appliance Park"
+2,2,Heat / cold extremes,"Reduced foot traffic, higher HVAC costs","4th Street Live, NuLu"
+3,2,Precipitation totals,In-store retail declines on rainy days,Mall St. Matthews
+4,3,High wind speed,Air-cargo delays and disruptions,UPS Worldport
+5,3,Heavy rainfall flag,Flooding and freight delays near Ohio River,Ohio River logistics
+6,4,UV index / sun hours,Spending shifts to outdoor dining and tourism,"Bourbon Trail, restaurants"
+7,4,Heavy rainfall flag,Outdoor event cancellation risk,Waterfront Park events
+8,5,Severe weather flag,Property damage and claims pressure,P&C insurers

@@ -1,0 +1,22 @@
+weather_code_id,description,severity_level
+0,Clear sky,normal
+1,Mainly clear,normal
+2,Partly cloudy,normal
+3,Overcast,normal
+45,Fog,moderate
+48,Depositing rime fog,moderate
+51,Light drizzle,normal
+53,Moderate drizzle,moderate
+55,Dense drizzle,moderate
+61,Slight rain,normal
+63,Moderate rain,moderate
+65,Heavy rain,severe
+71,Slight snow fall,moderate
+73,Moderate snow fall,moderate
+75,Heavy snow fall,severe
+80,Slight rain showers,normal
+81,Moderate rain showers,moderate
+82,Violent rain showers,severe
+95,Thunderstorm,severe
+96,Thunderstorm with slight hail,severe
+99,Thunderstorm with heavy hail,severe

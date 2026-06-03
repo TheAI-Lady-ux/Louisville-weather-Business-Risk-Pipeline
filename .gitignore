@@ -1,0 +1,67 @@
+# =============================================================================
+# Louisville Weather and Business Risk Monitor — .gitignore
+# =============================================================================
+
+# --- Environment & Credentials ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# --- Virtual Environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- ETL Outputs (generated data — not source-controlled) ---
+data/daily_weather_forecast.csv
+data/weekly_weather_summary.csv
+etl_pipeline.log
+*.log
+
+# --- Reference CSVs are source-controlled; generated outputs are not ---
+# To protect source data from accidental commits, untrack specific files:
+# data/weather_code.csv    ← keep (reference, version-controlled)
+# data/location.csv        ← keep (reference, version-controlled)
+# data/sector.csv          ← keep (reference, version-controlled)
+# data/sector_weather_sensitivity.csv ← keep (reference, version-controlled)
+
+# --- Jupyter Notebooks (checkpoints) ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Testing & Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# --- Temporary files ---
+*.tmp
+*.bak
+*.swp
+*~
