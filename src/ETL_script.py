@@ -3,34 +3,21 @@ Louisville Weather and Business Risk Monitor
 ETL Pipeline — Week 3: Transformation & Data Quality
 Developer: Oluwatosin Adelusi
 
-This file follows the structure of the Week 3 teaching example and extends it
-with a Supabase PostgreSQL database load for the Louisville Business Risk dashboard.
-
 Pipeline stages:
   1. Extract   - Open-Meteo API (16-day rolling forecast) + CSV reference files
   2. Validate  - raw API response structure and field completeness
   3. Clean     - unix timestamps, column renaming, type coercion, derived metrics
   4. Enrich    - join weather-code descriptions from CSV lookup
   5. Validate  - clean data quality checks (nulls, ranges, business rules, duplicates)
-  6. Aggregate - weekly summary layer for Power BI reporting
+  6. Aggregate - weekly summary layer for Dash  reporting
   7. Load CSV  - incremental date-key upsert to daily and weekly CSV outputs
   8. Load DB   - full schema reset + bulk insert to Supabase PostgreSQL
   9. Verify    - post-load row-count reconciliation
 
-Incremental loading strategy:
-  The CSV output (Step 7) uses a date-key upsert — existing dates are replaced
-  with the freshest forecast values and new dates are appended. This prevents
-  duplicate records while keeping the file current as the forecast window advances.
-
-  The database (Step 8) uses a full reset because the Power BI dashboard requires
-  a single coherent 16-day forecast window. Retaining old rows alongside a revised
-  API response would produce stale risk scores. The CSV file handles the
-  incremental history; the database is always a clean current snapshot.
-
-Required packages:
+Installpackages:
     pip install pandas sqlalchemy psycopg2-binary python-dotenv requests
 
-Database credentials (.env file — searched automatically from script folder upward):
+Database credentials (.env file ):
     user=postgres.YOUR_PROJECT_REF
     password=YOUR_DB_PASSWORD
     host=aws-0-REGION.pooler.supabase.com
@@ -147,9 +134,7 @@ def extract_weather_forecast() -> dict:
 # =============================================================================
 def validate_raw_response(raw_response: dict) -> None:
     """
-    Validate that the API response contains the minimum structure we need.
-    Catching source contract changes here gives a clear early failure point
-    before any transformation has run.
+    Validate the structure and content of the raw API response.
     """
     if not isinstance(raw_response, dict):
         raise ValueError("API response must be a dictionary")
@@ -172,14 +157,7 @@ def validate_raw_response(raw_response: dict) -> None:
 # =============================================================================
 def clean_and_normalize_forecast(raw_response: dict) -> pd.DataFrame:
     """
-    Convert the raw API payload into a clean DataFrame that matches the
-    weather_observation schema.
-
-    Cleaning steps:
-    - Convert unix epoch timestamps to readable dates and HH:MM time strings
-    - Rename API field names to schema column names
-    - Enforce numeric types (errors='coerce' turns bad values into NaN)
-    - Add derived metrics: avg temp, HDD, CDD, risk flags, risk score
+    Clean and normalize the raw API response into a structured DataFrame.
     """
     daily_df = pd.DataFrame(raw_response["daily"])
 
@@ -204,9 +182,6 @@ def clean_and_normalize_forecast(raw_response: dict) -> pd.DataFrame:
         "cloud_cover_mean":           "cloud_cover_pct",
         "uv_index_max":               "uv_index",
     })
-
-    # Enforce numeric types. errors="coerce" turns non-numeric strings into NaN
-    # so validation catches them rather than letting bad values reach the database.
     numeric_columns = [
         "weather_code", "temp_max_f", "temp_min_f", "apparent_temp_f",
         "precipitation_in", "wind_speed_max_mph", "humidity_pct",
@@ -257,10 +232,6 @@ def _banded_risk_level(score):
     if score < 80: return "high"
     return "severe"
 
-
-# =============================================================================
-# STEP 4 — ENRICHMENT (weather-code lookup join)
-# =============================================================================
 def load_weather_code_lookup(path: Path) -> pd.DataFrame:
     """Load and normalize the weather-code lookup from CSV."""
     logger.info("Loading weather-code lookup from %s", path)
@@ -374,11 +345,7 @@ def build_weekly_aggregation(daily_df: pd.DataFrame) -> pd.DataFrame:
     """
     Create a weekly summary aggregation layer for reporting.
 
-    A reporting layer summarizes row-level facts into business-friendly metrics.
-    Each week receives average/max/min temperatures, total precipitation,
-    count of rainy days, and average UV index — powering the weekly summary
-    view in Power BI without requiring DAX aggregations.
-    """
+  """
     aggregation_df = daily_df.copy()
     aggregation_df.index = pd.to_datetime(aggregation_df.index)
 
@@ -400,7 +367,7 @@ def build_weekly_aggregation(daily_df: pd.DataFrame) -> pd.DataFrame:
 
 
 # =============================================================================
-# STEP 7 — INCREMENTAL LOADING (CSV outputs for Power BI)
+# STEP 7 — INCREMENTAL LOADING (CSV outputs for Dash)
 # =============================================================================
 def incremental_upsert(new_df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
     """
@@ -429,7 +396,7 @@ def incremental_upsert(new_df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
 
 
 def load_outputs(daily_df: pd.DataFrame, weekly_df: pd.DataFrame) -> None:
-    """Write the daily forecast and weekly summary to CSV for Power BI consumption."""
+    """Write the daily forecast and weekly summary to CSV for Dash consumption."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     final_daily_df = incremental_upsert(daily_df, DAILY_OUTPUT_PATH)
     final_daily_df.to_csv(DAILY_OUTPUT_PATH, index=True)
@@ -686,7 +653,8 @@ def main() -> None:
         # Step 5: Validate clean data
         validate_clean_forecast(daily_df)
 
-        # Step 6: Build weekly aggregation layer for Power BI
+        # Step 6: Build weekly aggregation layer for Dash
+    
         weekly_df = build_weekly_aggregation(daily_df)
 
         # Step 7: Save CSV outputs with incremental upsert

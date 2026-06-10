@@ -63,8 +63,6 @@ def get_engine():
 
 
 ENGINE = get_engine()
-
-
 # =============================================================================
 # DATA LOADERS
 # =============================================================================
@@ -104,7 +102,6 @@ def load_forecast_data() -> pd.DataFrame:
     df["observation_date"] = pd.to_datetime(df["observation_date"])
     return df
 
-
 def load_sector_impact() -> pd.DataFrame:
     query = text("""
         SELECT
@@ -123,7 +120,6 @@ def load_sector_impact() -> pd.DataFrame:
     df["observation_date"] = pd.to_datetime(df["observation_date"])
     return df
 
-
 # Load once at startup
 FORECAST_DF = load_forecast_data()
 IMPACT_DF   = load_sector_impact()
@@ -131,7 +127,6 @@ IMPACT_DF   = load_sector_impact()
 MIN_DATE    = FORECAST_DF["observation_date"].min().date()
 MAX_DATE    = FORECAST_DF["observation_date"].max().date()
 ALL_SECTORS = sorted(IMPACT_DF["sector_name"].unique().tolist())
-
 
 # =============================================================================
 # COLOURS
@@ -153,8 +148,6 @@ ACCENT    = "#0f3460"
 HIGHLIGHT = "#e94560"
 LIGHT     = "#f5f5f5"
 
-# NOTE: All Plotly color values must be standard 6-digit hex or rgb()/rgba().
-# 8-digit hex (with alpha) is NOT supported by Plotly — use rgba() instead.
 GRID_FAINT  = "rgba(255,255,255,0.08)"
 LINE_FAINT  = "rgba(255,255,255,0.13)"
 TRANSPARENT = "rgba(255,255,255,0)"
@@ -180,8 +173,6 @@ CHART_LAYOUT = dict(
         tickcolor=LINE_FAINT,
     ),
 )
-
-
 # =============================================================================
 # LAYOUT HELPERS
 # =============================================================================
@@ -206,8 +197,6 @@ def kpi_card(title: str, value: str, subtitle: str = "", colour: str = HIGHLIGHT
             "boxShadow": "0 2px 8px rgba(0,0,0,0.3)",
         },
     )
-
-
 # =============================================================================
 # APP LAYOUT
 # =============================================================================
@@ -425,7 +414,6 @@ def _filter_forecast(start_date, end_date, risk_level):
         df = df[df["risk_level"] == risk_level]
     return df
 
-
 def _filter_impact(start_date, end_date, sectors):
     df = IMPACT_DF.copy()
     if start_date:
@@ -435,7 +423,6 @@ def _filter_impact(start_date, end_date, sectors):
     if sectors:
         df = df[df["sector_name"].isin(sectors)]
     return df
-
 
 # =============================================================================
 # CALLBACKS
@@ -473,7 +460,6 @@ def update_kpis(start_date, end_date, risk_level):
                  "Wind / rain / temp composite",   "#8e44ad"),
     ]
 
-
 @callback(
     Output("temp-trend-chart", "figure"),
     Input("date-range-picker", "start_date"),
@@ -510,7 +496,6 @@ def update_temp_trend(start_date, end_date, risk_level):
     )
     return fig
 
-
 @callback(
     Output("risk-score-chart", "figure"),
     Input("date-range-picker", "start_date"),
@@ -545,7 +530,6 @@ def update_risk_score(start_date, end_date, risk_level):
         showlegend=False,
     )
     return fig
-
 
 @callback(
     Output("impact-heatmap", "figure"),
@@ -620,7 +604,6 @@ def update_impact_heatmap(start_date, end_date, sectors):
         margin=dict(l=100, r=16, t=48, b=80),
     )
     return fig
-
 
 @callback(
     Output("precip-chart", "figure"),
@@ -713,7 +696,6 @@ def update_wind_humidity(start_date, end_date, risk_level):
         legend=dict(x=0.01, y=0.99, bgcolor="rgba(0,0,0,0)"),
     )
     return fig
-
 
 # =============================================================================
 # ENTRY POINT
